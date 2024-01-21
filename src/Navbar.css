@@ -1,0 +1,61 @@
+@keyframes dropDownProfile{
+    from{
+        height: 0px;
+        display: none; 
+        opacity: 0;
+        transform: translate(0, -20px);
+    }
+    to{
+        height: fit-content;
+        display: block;
+        opacity: 1;
+        transform: translate(0, 0px);
+    }
+}
+
+@keyframes menu{
+    40%{
+        opacity: 0;
+    }
+    100%{
+        opacity: 1;
+    }
+}
+
+@keyframes nonedropDownProfile{
+    from{
+        height: fit-content;
+        display: block;
+        opacity: 1;
+        transform: translate(0, 0px);
+    }
+    to{
+        height: 0px;
+        display: none; 
+        opacity: 0;
+        transform: translate(0, -10px);
+    }
+}
+
+@keyframes nonemenu{
+    0%{
+        opacity: 1;
+    }
+    50%{
+        opacity: 0;
+    }
+    100%{
+        opacity: 0;
+    }
+}
+
+@keyframes buttonIndex{
+    from{
+        border-bottom-width: 0px;
+        border-bottom-color: rgba(255, 255, 255, 0);
+    }
+    to{
+        border-bottom-width: 2px;
+        border-bottom-color: white;
+    }
+}
