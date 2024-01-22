@@ -1,13 +1,19 @@
-import { onValue, push, ref } from "firebase/database"
+import { TbPin, TbPinnedOff } from "react-icons/tb";
+import { onValue, push, ref, update } from "firebase/database"
 import { useEffect, useState } from "react"
 import { TypeAnimation } from "react-type-animation"
 import { db } from "../firebaseConfig"
 import CardBox from "../Elements/CardBox"
+import { GoTrash } from "react-icons/go";
+import RemoveCardBox from "../Elements/RemoveCardBox";
 
 const HomePages = ({addCard, setAddCard, OpenCard, setOpenCard, ProfileId}) => {
     const [Card, setCard] = useState([]);
     const [dataCardBox, setdataCardBox] = useState([])
+    const [showSubToolsCard, setShowSubToolsCard] = useState(0)
+    const [removeCard, setRemoveCard] = useState(false)
 
+    // function AddCard
     const handleAddCard = () => {
         const id = localStorage.getItem('profileId');
         const Card = document.getElementById("Card");
@@ -56,6 +62,39 @@ const HomePages = ({addCard, setAddCard, OpenCard, setOpenCard, ProfileId}) => {
         })
     }
 
+    // function PinCard
+    const unpinCard = (item) => {
+        const Ref = ref(db, `Cards - ${ProfileId}/${item.id}`);
+        update(Ref, {
+            pin: !item.pin
+        }).then(() => {
+
+        }).catch((error) => {
+            console.log(error)
+        })
+    }
+
+    const pinCard = (item) => {
+        const Ref = ref(db, `Cards - ${ProfileId}/${item.id}`);
+        update(Ref, {
+            pin: !item.pin
+        }).then(() => {
+
+        }).catch((error) => {
+            console.log(error)
+        })
+    }
+
+    // function EnterCard and LeaveCard
+    const enterCard = (id) => {
+        setShowSubToolsCard(id);
+    }
+
+    const leaveCard = () => {
+        setShowSubToolsCard(0);
+    }
+
+    // function Close and Open Card
     const openCard = (item) => {
         setOpenCard(true);
         setdataCardBox(item);
@@ -64,6 +103,11 @@ const HomePages = ({addCard, setAddCard, OpenCard, setOpenCard, ProfileId}) => {
     const closeCard = () => {
         setOpenCard(false);
         setdataCardBox([]);
+    }
+
+    const openRemoveCard = (item) => {
+        setRemoveCard(true);
+        setdataCardBox(item);
     }
 
     useEffect(() => {
@@ -85,8 +129,26 @@ const HomePages = ({addCard, setAddCard, OpenCard, setOpenCard, ProfileId}) => {
                 <div className="flex justify-between dark:text-white text-black" style={{height: '85.25vh'}}>
                     <div className="w-3/4 mt-4 overflow-y-auto" style={{maxHeight: '74.35vh'}}>
                     {Card && Card.map((card) => (
-                        <div key={card.id} className="bg-gray-700 p-5 m-4 rounded-3xl cursor-pointer" onClick={() => openCard(card)}>
-                            <h2>{card.title}</h2>
+                        <div key={card.id} className="bg-gray-700 p-5 m-4 rounded-3xl cursor-pointer"
+                        onMouseEnter={() => enterCard(card.id)} onMouseLeave={leaveCard}>
+                            <div className={`flex ${showSubToolsCard === card.id ? 'justify-between' : 'justify-start'}`}>
+                                <div className="w-full pt-2 pb-2" onClick={() => openCard(card)}>
+                                    <h2>{card.title}</h2>
+                                </div>
+                                {
+                                    showSubToolsCard === card.id && (
+                                    <div className="flex items-center space-x-2">
+                                        {!card.pin ? (
+                                            <TbPin className="text-gray-400 cursor-pointer hover:text-gray-500" size={25} onClick={() => unpinCard(card)}/>
+                                        ) : (
+                                            <TbPinnedOff className="text-gray-400 cursor-pointer hover:text-gray-500" size={25} onClick={() => pinCard(card)}/>
+                                        )
+                                        }
+                                        <GoTrash className="text-red-400 cursor-pointer hover:text-red-500" size={25} onClick={() => openRemoveCard(card)}/>
+                                    </div>
+                                    )
+                                }
+                            </div>
                         </div>
                     ))}
                     </div>
@@ -94,7 +156,13 @@ const HomePages = ({addCard, setAddCard, OpenCard, setOpenCard, ProfileId}) => {
                         <button type="button" className="bg-gray-500 p-2 w-3/4 rounded-3xl mx-auto" onClick={() => setAddCard(!addCard)}>Add Card</button>
                         <h2 className="mt-4">Pinned : </h2>
                         <div className="mt-4 overflow-y-auto" style={{maxHeight: '35vh'}}>
-
+                        {Card && Card.map((card) => (
+                            card.pin && 
+                            <div className="flex justify-between items-center w-3/4 mx-auto">
+                                <div key={card.id} className="p-2 cursor-pointer" onClick={() => openCard(card)}>{card.title}</div>
+                                <TbPinnedOff className="text-gray-400 cursor-pointer hover:text-gray-500" onClick={() => unpinCard(card)}/>
+                            </div>
+                        ))}
                         </div>
                     </div> 
                 </div>
@@ -114,6 +182,10 @@ const HomePages = ({addCard, setAddCard, OpenCard, setOpenCard, ProfileId}) => {
 
             {OpenCard && (
                 <CardBox item={dataCardBox} closeCard={closeCard}/>
+            )}
+
+            {removeCard && (
+                <RemoveCardBox item={dataCardBox} setRemoveCard={setRemoveCard} removeCard={removeCard} />
             )}
         </>
     )

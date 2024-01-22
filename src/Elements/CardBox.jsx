@@ -1,6 +1,6 @@
 import { GoTrash } from "react-icons/go";
 import { FiCheckSquare, FiEdit } from "react-icons/fi";
-import { TbPin } from "react-icons/tb";
+import { TbPin, TbPinnedOff } from "react-icons/tb";
 import { useEffect, useState } from "react";
 import { IoAddCircleOutline } from "react-icons/io5";
 import { onValue, push, ref, remove, set, update } from "firebase/database";
@@ -10,6 +10,37 @@ const CardBox = ({item, closeCard}) => {
     const [AddChecklist, setAddChecklist] = useState(false);
     const [Checklist, setChecklist] = useState([]);
     const [AddItem, setAddItem] = useState(0);
+    const [editTitle, setEditTitle] = useState(false)
+    const [editDesc, setEditDesc] = useState(false)
+    const [editChecklist, setEditChecklist] = useState(false)
+    const [editChecklistItem, setEditChecklistItem] = useState(false)
+    const IdProfile = localStorage.getItem('profileId');
+
+    // function Card
+    const pinCard = () => {
+        const Ref = ref(db, `Cards - ${IdProfile}/${item.id}`);
+        update(Ref, {
+            pin: !item.pin
+        }).then(() => {
+            closeCard()
+        }).catch((error) => {
+            console.log(error)
+        })
+    }
+
+    const removeCard = () => {
+        const Ref = ref(db, `Cards - ${IdProfile}/${item.id}`);
+        const Ref2 = ref(db, `CheckList - ${item.id}`);
+        remove(Ref).then(() => {
+            remove(Ref2).then(() => {
+                closeCard()
+            })
+        }).catch((error) => {
+            console.log(error)
+        })
+    }
+
+    // function CheckList
     const handleAddChecklist = () => {
         const Checklist = document.getElementById("Checklist");
         const Ref = ref(db, `CheckList - ${item.id}`);
@@ -55,6 +86,36 @@ const CardBox = ({item, closeCard}) => {
         remove(Ref)
     }
 
+    // function Edit
+    const editTitleCard = () => {
+        const Title = document.getElementById("Title");
+        const Ref = ref(db, `Cards - ${IdProfile}/${item.id}`);
+
+        const data = {
+            title: Title.value
+        }
+
+        update(Ref, data).then(() => {
+            setEditTitle(!editTitle)
+            item.title = Title.value
+        })
+    }
+
+    const editDescCard = () => {
+        const Desc = document.getElementById("description");
+        const Ref = ref(db, `Cards - ${IdProfile}/${item.id}`);
+
+        const data = {
+            description: Desc.value
+        }
+
+        update(Ref, data).then(() => {
+            setEditDesc(!editDesc)
+            item.description = Desc.value
+        })
+    }
+
+    // function CheckItem
     const addcheckitem = (idCard, idCheckList) => {
         const Item = document.getElementById("Item").value;
         const Ref = ref(db, `CheckList - ${idCard}/${idCheckList}/item/`);
@@ -88,24 +149,53 @@ const CardBox = ({item, closeCard}) => {
     },[])
     return(
         <>
-            <div className="bg-gray-500 dark:bg-gray-600 p-5 m-4 rounded-3xl text-black dark:text-white w-1/2
+            <div className="bg-gray-500 dark:bg-gray-600 p-5 m-4 rounded-3xl text-black dark:text-white w-1/2 focus:outline-none
             absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" style={{zIndex: 3, filter: 'blur(0px)', height: '90vh'}}>
                 <div className="flex justify-between">
-                    <h1 className="text-4xl font-semibold">{item.title}</h1>
+                    {editTitle ? (
+                        <div className="flex space-x-2">
+                            <input className="bg-gray-200 dark:bg-gray-700 p-2 rounded-3xl ps-4 text-center" id="Title" style={{width: '400px'}}
+                            type="text" defaultValue={item.title}/>
+                            <button className="hover:text-red-400 p-1 font-medium" onClick={() => setEditTitle(!editTitle)}>X</button>
+                            <button className="hover:text-green-400" onClick={() => editTitleCard()}><FiCheckSquare/></button>
+                        </div>
+                    ):(
+                        <h1 className="text-4xl font-semibold">{item.title}</h1>
+                    )
+                    }
                     <button className="hover:bg-gray-500 p-1 font-medium" onClick={() => closeCard()}>X</button>
                 </div>
                 <hr className="my-4"/>
                 <div className="flex">
                     <div className="w-3/4 overflow-y-auto" style={{maxHeight: '77.5vh'}}>
                         <p className="text-2xl">Description</p>
+                        {editDesc ? (
+                        <>
+                        <textarea className="mt-2 bg-gray-500 dark:bg-gray-700 p-3 focus:outline-none" defaultValue={item.description}
+                        style={{resize: 'none'}} id="description" cols="95" rows="8"></textarea>
+                        <div className="flex justify-end space-x-2">
+                            <button type="button" className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onClick={() => setEditDesc(!editDesc)}>Cancel</button>
+                            <button type="button" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={editDescCard}>Save</button>
+                        </div>
+                        </>
+                        ) : (
                         <p className="mt-2 text-lg text-gray-400">{item.description}</p>
+                        )
+                        }
                         <hr className="my-4" style={{width: '95%'}}/>
                         <p className="mb-6 text-xl">Checklist</p>
                         {
                             Array.isArray(Checklist) && Checklist.length > 0 && Checklist.map((check, index) =>(
                               <div key={index}>
                                 <div className="flex justify-between items-center">
-                                    <p className="mt-6 text-xl text-gray-400">{check.title}</p>
+                                    {editChecklist ? (
+                                        <div>
+                                            <input type="text" id="CheckListTitle" defaultValue={check.title} 
+                                            className="focus:outline-none bg-gray-500 dark:bg-gray-700 p-2 rounded-3xl ps-4"/>
+                                        </div>
+                                    ) : (
+                                        <p className="mt-6 text-xl text-gray-400 cursor-default" onClick={() => setEditChecklist(!editChecklist)}>{check.title}</p>
+                                    )}
                                     <GoTrash size={20} className="text-red-500 cursor-pointer mt-8" onClick={() => removeCheckList(check.id)}/>
                                 </div>
                                 <div className="flex flex-col">
@@ -158,10 +248,10 @@ const CardBox = ({item, closeCard}) => {
                         <p>Tools</p>
                         <button type="button" className="bg-blue-500 p-3 w-3/4 rounded-full justify-center items-center flex" onClick={() => setAddChecklist(!AddChecklist)}>
                         <FiCheckSquare className="mr-1"/>Add Checklist</button>
-                        <button type="button" className="bg-gray-500 p-3 w-3/4 rounded-full flex justify-center items-center"><FiEdit className="mr-1"/>Edit Description</button>
-                        <button type="button" className="bg-gray-500 p-3 w-3/4 rounded-full flex justify-center items-center"><FiEdit className="mr-1"/>Edit Title</button>
-                        <button type="button" className="bg-yellow-500 p-3 w-3/4 rounded-full flex justify-center items-center"><TbPin className="mr-1"/>Pin</button>
-                        <button type="button" className="bg-red-500 p-3 w-3/4 rounded-full flex justify-center items-center"><GoTrash className="mr-1"/>Delete Card</button>
+                        <button type="button" className="bg-gray-500 p-3 w-3/4 rounded-full flex justify-center items-center"  onClick={() => setEditDesc(!editDesc)}><FiEdit className="mr-1"/>Edit Description</button>
+                        <button type="button" className="bg-gray-500 p-3 w-3/4 rounded-full flex justify-center items-center" onClick={() => setEditTitle(!editTitle)}><FiEdit className="mr-1"/>Edit Title</button>
+                        <button type="button" className="bg-yellow-500 p-3 w-3/4 rounded-full flex justify-center items-center" onClick={() => pinCard()}><TbPin className="mr-1" />Pin</button>
+                        <button type="button" className="bg-red-500 p-3 w-3/4 rounded-full flex justify-center items-center" onClick={() => removeCard()}><GoTrash className="mr-1"/>Delete Card</button>
                     </div>
                 </div>
             </div>
