@@ -1,6 +1,7 @@
 import { GoTrash } from "react-icons/go";
 import { FiCheckSquare, FiEdit } from "react-icons/fi";
 import { TbPin, TbPinnedOff } from "react-icons/tb";
+import { MdOutlineCancel } from "react-icons/md";
 import { useEffect, useState } from "react";
 import { IoAddCircleOutline } from "react-icons/io5";
 import { onValue, push, ref, remove, set, update } from "firebase/database";
@@ -13,7 +14,9 @@ const CardBox = ({item, closeCard}) => {
     const [editTitle, setEditTitle] = useState(false)
     const [editDesc, setEditDesc] = useState(false)
     const [editChecklist, setEditChecklist] = useState(false)
-    const [editChecklistItem, setEditChecklistItem] = useState(false)
+    const [editChecklistItem, setEditChecklistItem] = useState(0)
+    const [HoverChecklist, setHoverChecklist] = useState(0)
+    const [HoverChecklistitem, setHoverChecklistitem] = useState(0)
     const IdProfile = localStorage.getItem('profileId');
 
     // function Card
@@ -115,6 +118,41 @@ const CardBox = ({item, closeCard}) => {
         })
     }
 
+    const editChecklistCard = (id) => {
+        const Checklist = document.getElementById("CheckListTitle");
+        const Ref = ref(db, `CheckList - ${item.id}/${id}`);
+
+        const data = {
+            title: Checklist.value
+        }
+        update(Ref, data).then(() => {
+            setEditChecklist(!editChecklist)
+        })
+    }
+
+    const editChecklistItemCard = (idcheck, keyitem, Value) => {
+        const ChecklistItem = document.getElementById("CheckListItem");
+
+        const oldRef = ref(db, `CheckList - ${item.id}/${idcheck}/item/${keyitem}`);
+        const newRef = ref(db, `CheckList - ${item.id}/${idcheck}/item/`);
+    
+        const data = {
+            [ChecklistItem.value] : Value
+        }
+
+        if(ChecklistItem.value !== keyitem){
+            remove(oldRef).then(() => {
+                set(newRef, data).then(() => {
+                    setEditChecklistItem(!editChecklistItem)
+                })
+            })
+        }else{
+            setEditChecklistItem(!editChecklistItem)
+        }
+        
+    };
+    
+    
     // function CheckItem
     const addcheckitem = (idCard, idCheckList) => {
         const Item = document.getElementById("Item").value;
@@ -144,6 +182,22 @@ const CardBox = ({item, closeCard}) => {
         remove(Ref, keyitem)
     }
 
+    // function hover
+    const EnterChecklist = (id) => {
+        setHoverChecklist(id)
+    }
+
+    const LeaveChecklist = () => {
+        setHoverChecklist(0)
+    }
+
+    const EnterChecklistItem = (id) => {
+        setHoverChecklistitem(id)
+    }
+
+    const LeaveChecklistItem = () => {
+        setHoverChecklistitem(0)
+    }
     useEffect(() => {
         getCheckList()
     },[])
@@ -187,25 +241,44 @@ const CardBox = ({item, closeCard}) => {
                         {
                             Array.isArray(Checklist) && Checklist.length > 0 && Checklist.map((check, index) =>(
                               <div key={index}>
-                                <div className="flex justify-between items-center">
-                                    {editChecklist ? (
-                                        <div>
+                                <div className="flex justify-between items-center" onMouseEnter={() => EnterChecklist(check.id)} onMouseLeave={() => LeaveChecklist()}>
+                                    {editChecklist === check.id ? (
+                                        <div className="flex space-x-2 items-center">
                                             <input type="text" id="CheckListTitle" defaultValue={check.title} 
-                                            className="focus:outline-none bg-gray-500 dark:bg-gray-700 p-2 rounded-3xl ps-4"/>
+                                            className="focus:outline-none bg-gray-500 dark:bg-gray-700 p-1 rounded-3xl ps-4"/>
+                                            <MdOutlineCancel size={25} className="text-red-500 cursor-pointer" onClick={() => setEditChecklist(!editChecklist)}/>
+                                            <FiCheckSquare size={20} className="text-green-500 cursor-pointer" onClick={() => editChecklistCard(check.id)}/>
                                         </div>
                                     ) : (
-                                        <p className="mt-6 text-xl text-gray-400 cursor-default" onClick={() => setEditChecklist(!editChecklist)}>{check.title}</p>
+                                        <p className="mt-6 mb-3 text-xl text-gray-400 cursor-default" onClick={() => setEditChecklist(check.id)}>{check.title}</p>
                                     )}
+                                    {HoverChecklist === check.id &&
                                     <GoTrash size={20} className="text-red-500 cursor-pointer mt-8" onClick={() => removeCheckList(check.id)}/>
+                                    }
                                 </div>
                                 <div className="flex flex-col">
                                     {check.item && Object.entries(check.item).map(([key, value]) => 
-                                    <div className="flex justify-between items-center" style={{width: '95%'}}>
+                                    <div className="flex justify-between items-center" style={{width: '95%'}} onMouseEnter={() => EnterChecklistItem(key)} onMouseLeave={() => LeaveChecklistItem()}>
                                         <div className="flex space-x-1 items-center">
-                                            <FiCheckSquare size={20} className={`${value === true ? "text-green-500" : "text-gray-300"}`}
-                                            onClick={() => checkitem(check.id, item.id, key, value)}/> <p className="text-lg cursor-default" onClick={() => checkitem(check.id, item.id, key, value)}>{`${key}`}</p>
+                                            {editChecklistItem === key ? (
+                                                <div className="flex items-center mt-2 space-x-2">
+                                                    <input type="text" name="Item" id="CheckListItem" 
+                                                    className="p-1 rounded bg-gray-500 dark:bg-gray-500 ps-4 pe-4 focus:outline-none w-3/4 text-black dark:text-white"
+                                                    defaultValue={key}/>
+                                                    <MdOutlineCancel size={20} className="text-red-500 hover:text-red-700 cursor-pointer" onClick={() => setEditChecklistItem(!editChecklistItem)}/>
+                                                    <FiCheckSquare size={20} className="text-green-500 hover:text-green-700 cursor-pointer" onClick={() => editChecklistItemCard(check.id, key, value)}/>
+                                                </div>
+                                            ):(
+                                            <>
+                                                <FiCheckSquare size={20} className={`${value === true ? "text-green-500" : "text-gray-300"}`}
+                                                onClick={() => checkitem(check.id, item.id, key, value)}/> 
+                                                <p className="text-lg cursor-default" onClick={() => setEditChecklistItem(key)}>{`${key}`}</p>
+                                            </>
+                                            )}
                                         </div>
+                                        {HoverChecklistitem === key &&
                                         <GoTrash size={20} className="text-red-500 cursor-pointer" onClick={() => removeItem(check.id, item.id, key)}/>
+                                        }
                                     </div>
                                     )}
                                     {
