@@ -66,35 +66,49 @@ const Navbar = ({newProfile, setNewProfile, RemoveProfile, setRemoveProfile, set
     }
 
     const hRemoveProfile = () => {
-        const idToRemove = localStorage.getItem('profileId');
-        const indexToRemove = ProfileList.findIndex((profile) => profile.id === idToRemove);
-      
-        if (indexToRemove !== -1) {
-          const updatedProfileList = [...ProfileList];
-          updatedProfileList.splice(indexToRemove, 1);
-          setProfileList(updatedProfileList);
-      
-          if (updatedProfileList.length > 0) {
-            const firstProfile = updatedProfileList[0];
-            localStorage.setItem('profile', firstProfile.name);
-            localStorage.setItem('profileId', firstProfile.id);
-            setProfile(firstProfile.name);
-            setProfileId(firstProfile.id);
-          } else {
-            localStorage.removeItem('profile');
-            localStorage.removeItem('profileId');
-            setProfile(null);
-            setProfileId('');
-          }
-      
-          const Ref = ref(db, "Profiles/" + idToRemove);
-          remove(Ref)
-            .then(() => {
-              setRemoveProfile(!RemoveProfile);
+            const idToRemove = localStorage.getItem('profileId');
+            const indexToRemove = ProfileList.findIndex((profile) => profile.id === idToRemove);
+        
+            if (indexToRemove !== -1) {
+            const updatedProfileList = [...ProfileList];
+            updatedProfileList.splice(indexToRemove, 1);
+            setProfileList(updatedProfileList);
+        
+            if (updatedProfileList.length > 0) {
+                const firstProfile = updatedProfileList[0];
+                localStorage.setItem('profile', firstProfile.name);
+                localStorage.setItem('profileId', firstProfile.id);
+                setProfile(firstProfile.name);
+                setProfileId(firstProfile.id);
+            } else {
+                localStorage.removeItem('profile');
+                localStorage.removeItem('profileId');
+                setProfile(null);
+                setProfileId('');
+            }
+        
+            const Ref = ref(db, "Profiles/" + idToRemove);
+            const cardRef = ref(db, "Cards - " + idToRemove);
+          
+            onValue(cardRef, (snapshot) => {
+                const data = snapshot.val();
+                if(data !== null){
+                    const newCardList = Object.keys(data).map((key) => {
+                        return{
+                            id: key
+                        }
+                    })
+                    newCardList.forEach((card) => {
+                        const checklistRef = ref(db, `CheckList - ${card.id}`);
+                        remove(checklistRef)
+                    })
+                }
             })
-            .catch((error) => {
-              console.error('Error menghapus profil:', error.message);
-            });
+            remove(Ref).then(() => {
+                remove(cardRef).then(() => {
+                    setRemoveProfile(!RemoveProfile);
+                })
+            })
         } else {
           console.error('Profil tidak ditemukan dalam daftar.');
         }
