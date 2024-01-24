@@ -1,6 +1,8 @@
 const TrashPages = () => {
+    const [dataTrash, setDataTrash] = useState([])
     return(
         <>
+
         </>
     )
 }

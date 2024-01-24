@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { NavLink } from "react-router-dom"
+import { NavLink, useNavigate } from "react-router-dom"
 import { GoTrash } from "react-icons/go";
 import { FiCheckSquare } from "react-icons/fi";
 import { IoAddCircleOutline } from "react-icons/io5";
@@ -9,11 +9,12 @@ import { onValue, push, ref, remove } from "firebase/database";
 import { db } from "../firebaseConfig";
 
 
-const Navbar = ({newProfile, setNewProfile, RemoveProfile, setRemoveProfile, setProfileId}) => {
+const Navbar = ({newProfile, setNewProfile, RemoveProfile, setRemoveProfile, setProfileId, idToRemove}) => {
     const [dropdownProfile, setDropdownProfile] = useState(false);
     const [buttonIndex, setButtonIndex] = useState(JSON.parse(sessionStorage.getItem('buttonIndex')) || 1);
     const [ProfileList, setProfileList] = useState([]);
     const [Profile, setProfile] = useState(localStorage.getItem('profile') || 'User');
+    const navigate = useNavigate();
 
     const handleNewProfile = () => {
         const newProfile = document.getElementById("newProfile");
@@ -66,7 +67,6 @@ const Navbar = ({newProfile, setNewProfile, RemoveProfile, setRemoveProfile, set
     }
 
     const hRemoveProfile = () => {
-            const idToRemove = localStorage.getItem('profileId');
             const indexToRemove = ProfileList.findIndex((profile) => profile.id === idToRemove);
         
             if (indexToRemove !== -1) {
@@ -107,6 +107,7 @@ const Navbar = ({newProfile, setNewProfile, RemoveProfile, setRemoveProfile, set
             remove(Ref).then(() => {
                 remove(cardRef).then(() => {
                     setRemoveProfile(!RemoveProfile);
+                    navigate(0);
                 })
             })
         } else {

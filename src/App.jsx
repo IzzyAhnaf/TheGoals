@@ -15,7 +15,7 @@ function App() {
 
   return (
     <div className='dark:bg-black bg-white'>
-      <Navbar newProfile={newProfile} setNewProfile={setNewProfile} RemoveProfile={RemoveProfile} setRemoveProfile={setRemoveProfile} setProfileId={setProfileId}/>
+      <Navbar newProfile={newProfile} setNewProfile={setNewProfile} RemoveProfile={RemoveProfile} setRemoveProfile={setRemoveProfile} setProfileId={setProfileId} idToRemove={ProfileId}/>
       <div style={{filter: newProfile || RemoveProfile ? 'blur(5px)' : 'none'}} className='p-4'>
         <Routes>
           <Route path="/" element={<HomePages addCard={addCard} setAddCard={setAddCard} OpenCard={OpenCard} setOpenCard={setOpenCard} ProfileId={ProfileId}/>}></Route>
