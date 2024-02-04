@@ -49,7 +49,7 @@ const RemoveCardBox = ({item, setRemoveCard, removeCard}) => {
     return(
         <>
             <div className="bg-gray-500 dark:bg-gray-600 p-5 m-4 rounded-3xl text-black dark:text-white w-[500px]
-            absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" style={{zIndex: 3, filter: 'blur(0px)'}}>
+            fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" style={{zIndex: 3, filter: 'blur(0px)'}}>
                 <div className="flex justify-between">
                     <h1 className="text-2xl font-semibold">Remove - {item.title}</h1>
                     <button className="hover:bg-gray-500 p-1 font-medium" onClick={() => closeCard()}>X</button>

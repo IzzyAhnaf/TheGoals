@@ -20,7 +20,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePages addCard={addCard} setAddCard={setAddCard} OpenCard={OpenCard} setOpenCard={setOpenCard} ProfileId={ProfileId}/>}></Route>
           <Route path='/Profile' element={<ProfilePages />}></Route>
-          <Route path='/Trash' element={<TrashPages />}></Route>
+          <Route path='/Trash' element={<TrashPages ProfileId={ProfileId} openCard={OpenCard} setOpenCard={setOpenCard}/>}></Route>
         </Routes>
       </div>
     </div>

@@ -122,8 +122,8 @@ const HomePages = ({addCard, setAddCard, OpenCard, setOpenCard, ProfileId}) => {
                 speed={50}
                 cursor={true}
                 repeat={Infinity}
-                className="text-3xl text-black dark:text-white font-medium"
-                style={{fontFamily: 'Montserrat'}}
+                className="text-3xl text-black dark:text-white font-bold"
+                style={{fontFamily: 'Monospace'}}
                 />
 
                 <div className="flex justify-between dark:text-white text-black" style={{height: '85.25vh'}}>
@@ -154,7 +154,8 @@ const HomePages = ({addCard, setAddCard, OpenCard, setOpenCard, ProfileId}) => {
                     </div>
                     <div className="w-1/4 mt-4 flex flex-col bg-gray-700 p-5 m-4 rounded-3xl" style={{maxHeight: '50vh'}}>
                         <button type="button" className="bg-gray-500 p-2 w-3/4 rounded-3xl mx-auto" onClick={() => setAddCard(!addCard)}>Add Card</button>
-                        <h2 className="mt-4">Pinned : </h2>
+                        <h2 className="mt-4 mx-auto">Pinned</h2>
+                        <hr className="w-3/4 mx-auto mt-3"/>
                         <div className="mt-4 overflow-y-auto" style={{maxHeight: '35vh'}}>
                         {Card && Card.map((card) => (
                             card.pin && 
