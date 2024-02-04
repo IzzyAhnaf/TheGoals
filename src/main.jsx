@@ -9,20 +9,20 @@ import TrashPages from './Pages/TrashPages.jsx'
 
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: '/GoalsKu/',
     element: <App />,
     // errorElement: <div>Page Not Found</div>,
     children: [
       {
-        path: '/',
+        path: '/GoalsKu/',
         element: <HomePages/>,
       },
       {
-        path: '/Trash',
+        path: '/GoalsKu/Trash',
         element: <TrashPages/>
       },
       {
-        path: '/Profile',
+        path: '/GoalsKu/Profile',
         element: <ProfilePages/>
       }
     ],
