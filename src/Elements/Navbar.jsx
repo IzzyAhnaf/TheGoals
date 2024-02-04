@@ -128,9 +128,9 @@ const Navbar = ({newProfile, setNewProfile, RemoveProfile, setRemoveProfile, set
                         <NavLink className={`flex justify-center items-center p-1`} onClick={() => hSetButtonIndex(1)}
                         style={{borderBottomColor: buttonIndex === 1 ? 'white' : 'transparent', borderBottomWidth: buttonIndex === 1 ? '2px' : '0px',
                         borderBottomStyle: buttonIndex === 1 ? 'solid' : 'none', animation: buttonIndex === 1 ? 'buttonIndex 0.25s ease-in-out' : 'none'}}
-                         to={'/GoalsKu/'}><span className="mr-1"><FiCheckSquare/></span>Goals</NavLink>
+                         to={'/TheGoals/'}><span className="mr-1"><FiCheckSquare/></span>Goals</NavLink>
                          
-                        <NavLink to={'/GoalsKu/Trash'} onClick={() => hSetButtonIndex(2)} className={`flex justify-center items-center p-1`}
+                        <NavLink to={'/TheGoals/Trash'} onClick={() => hSetButtonIndex(2)} className={`flex justify-center items-center p-1`}
                         style={{borderBottomColor: buttonIndex === 2 ? 'white' : 'transparent', borderBottomWidth: buttonIndex === 2 ? '2px' : '0px',
                         borderBottomStyle: buttonIndex === 2 ? 'solid' : 'none', animation: buttonIndex === 2 ? 'buttonIndex 0.25s ease-in-out' : 'none'}}><span className="mr-1"><GoTrash/></span>Trash</NavLink>
                     </div>
